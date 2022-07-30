@@ -8,8 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jinzhu/inflection"
-
 	"github.com/uptrace/bun/internal"
 	"github.com/uptrace/bun/internal/tagparser"
 )
@@ -24,16 +22,9 @@ const (
 
 var (
 	baseModelType      = reflect.TypeOf((*BaseModel)(nil)).Elem()
-	tableNameInflector = inflection.Plural
 )
 
 type BaseModel struct{}
-
-// SetTableNameInflector overrides the default func that pluralizes
-// model name to get table name, e.g. my_article becomes my_articles.
-func SetTableNameInflector(fn func(string) string) {
-	tableNameInflector = fn
-}
 
 // Table represents a SQL table created from Go struct.
 type Table struct {
@@ -78,7 +69,7 @@ func newTable(dialect Dialect, typ reflect.Type) *Table {
 	t.ZeroIface = reflect.New(t.Type).Interface()
 	t.TypeName = internal.ToExported(t.Type.Name())
 	t.ModelName = internal.Underscore(t.Type.Name())
-	tableName := tableNameInflector(t.ModelName)
+	tableName := t.ModelName
 	t.setName(tableName)
 	t.Alias = t.ModelName
 	t.SQLAlias = t.quoteIdent(t.ModelName)
